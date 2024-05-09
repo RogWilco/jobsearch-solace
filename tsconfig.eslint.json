@@ -1,0 +1,10 @@
+/**
+ * ESLint Configuration
+ *
+ * The config used by ESLint when applying TypeScript related linting rules.
+ */
+ {
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.base.json",
+  "include": ["**/*.*"]
+}

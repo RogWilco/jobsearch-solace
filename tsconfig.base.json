@@ -1,0 +1,44 @@
+/**
+ * Base TypeScript Configuration
+ *
+ * Base config from which all other project configurations inherit.
+ */
+ {
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "declaration": true,
+    "declarationMap": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "lib": [
+      "ES2021"
+    ],
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "noErrorTruncation": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "preserveConstEnums": true,
+    "removeComments": true,
+    "resolveJsonModule": true,
+    "rootDir": ".",
+    "sourceMap": true,
+    "strict": true,
+    "target": "ES2021",
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "package.json",
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "out/**/*.*"
+  ]
+}

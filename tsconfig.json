@@ -1,0 +1,14 @@
+/**
+ * Editor Configuration
+ *
+ * Must be named `tsconfig.json` because some editors will only look for a file
+ * named `tsconfig.json` and only in the project root.
+ */
+ {
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "noEmit": true
+  }
+}

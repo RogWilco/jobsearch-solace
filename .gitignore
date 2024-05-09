@@ -1,0 +1,11 @@
+docker
+node_modules
+out
+
+.env
+.idea
+
+**/.terraform/*
+terraform.tfstate
+terraform.tfstate.backup
+terraform.tfstate.*.backup

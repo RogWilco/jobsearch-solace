@@ -1,0 +1,15 @@
+/**
+ * Local Build Configuration
+ *
+ * Used for building locally, enabling features useful for debugging/development.
+ */
+ {
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "out/build",
+    "sourceMap": true,
+    "sourceRoot": "."
+  },
+  "exclude": ["**/*test.ts"]
+}
