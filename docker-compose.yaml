@@ -1,0 +1,26 @@
+name: uhura
+
+services:
+  service:
+    depends_on:
+      - db
+    links:
+      - db
+    build:
+      context: uhura-service/
+      target: base
+    command: ['sh', '-c', 'npx yarn start']
+    environment:
+      NODE_ENV: ci
+    volumes:
+      - ./:/app
+    working_dir: /app/uhura-service
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: notes
+    ports:
+      - '5432:5432'

@@ -1,0 +1,5 @@
+services:
+  service:
+    command: ['sh', '-c', 'npx yarn start:watch']
+    environment:
+      NODE_ENV: development

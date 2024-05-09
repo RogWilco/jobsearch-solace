@@ -3,12 +3,12 @@
  *
  * Used when building distributables for deployment and/or publishing.
  */
- {
+{
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "out/dist",
     "declarationMap": false,
+    "outDir": "out/dist",
     "sourceMap": false
   },
   "exclude": ["**/*test.ts"]

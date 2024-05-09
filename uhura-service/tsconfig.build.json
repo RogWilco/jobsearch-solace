@@ -3,13 +3,13 @@
  *
  * Used for building locally, enabling features useful for debugging/development.
  */
- {
+{
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
+    "declarationMap": true,
     "outDir": "out/build",
-    "sourceMap": true,
-    "sourceRoot": "."
+    "sourceMap": true
   },
   "exclude": ["**/*test.ts"]
 }

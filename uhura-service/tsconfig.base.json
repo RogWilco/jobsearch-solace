@@ -1,0 +1,16 @@
+/**
+ * Base TypeScript Configuration
+ *
+ * Base config from which all other project configurations inherit.
+ */
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": ".",
+    "sourceRoot": "."
+  },
+  "include": ["package.json", "src/**/*.ts"],
+  "exclude": ["out/**/*.*"]
+}
