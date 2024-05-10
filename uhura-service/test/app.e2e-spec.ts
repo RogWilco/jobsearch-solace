@@ -15,10 +15,15 @@ describe('AppController (e2e)', () => {
     await app.init()
   })
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!')
+  describe('GET /health', () => {
+    test('successfully returns a valid health status response', async () => {
+      return request(app.getHttpServer())
+        .get('/health')
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.status).toBe('ok')
+          expect(res.body.info.application.status).toBe('up')
+        })
+    })
   })
 })

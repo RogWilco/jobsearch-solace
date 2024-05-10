@@ -1,5 +1,5 @@
 # Base Stage: Common Shared Environment
-FROM node:20-alpine AS base
+FROM node:20 AS base
 
 # Builder Stage: Heavy for Typescript Transpiling
 FROM base AS builder
