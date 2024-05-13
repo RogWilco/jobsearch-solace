@@ -15,6 +15,10 @@ describe('AppController (e2e)', () => {
     await app.init()
   })
 
+  afterAll(async () => {
+    await app.close()
+  })
+
   describe('GET /health', () => {
     test('successfully returns a valid health status response', async () => {
       return request(app.getHttpServer())
