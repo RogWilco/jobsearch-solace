@@ -4,11 +4,15 @@ import {
   HealthCheckResult,
   HealthCheckService,
   HealthIndicatorResult,
+  TypeOrmHealthIndicator,
 } from '@nestjs/terminus'
 
 @Controller('health')
 export class HealthController {
-  constructor(private health: HealthCheckService) {}
+  constructor(
+    private health: HealthCheckService,
+    private db: TypeOrmHealthIndicator,
+  ) {}
 
   private async _selfCheck(key: string): Promise<HealthIndicatorResult> {
     return {
@@ -22,6 +26,9 @@ export class HealthController {
   @Get()
   @HealthCheck()
   async index(): Promise<HealthCheckResult> {
-    return this.health.check([() => this._selfCheck('application')])
+    return this.health.check([
+      () => this._selfCheck('application'),
+      () => this.db.pingCheck('database'),
+    ])
   }
 }
