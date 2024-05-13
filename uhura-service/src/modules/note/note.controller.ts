@@ -8,6 +8,7 @@ import {
   Post,
 } from '@nestjs/common'
 import type { PropertyType } from '../../common/utility.types'
+import type { NoteGetDto, NotePatchDto, NotePostDto } from './note.dtos'
 import type { NoteEntity } from './note.entity'
 import { NoteService } from './note.service'
 
@@ -16,19 +17,19 @@ export class NoteController {
   constructor(private readonly noteService: NoteService) {}
 
   @Get()
-  async getMany(): Promise<NoteEntity[]> {
+  async getMany(): Promise<NoteGetDto[]> {
     return this.noteService.getMany()
   }
 
   @Get(':id')
   async get(
     @Param('id') id: PropertyType<NoteEntity, 'id'>,
-  ): Promise<NoteEntity> {
+  ): Promise<NoteGetDto> {
     return this.noteService.getOne(id)
   }
 
   @Post()
-  async create(@Body() dto: Partial<NoteEntity>): Promise<NoteEntity> {
+  async create(@Body() dto: NotePostDto): Promise<NoteEntity> {
     return this.noteService.create(dto)
   }
 
@@ -36,12 +37,9 @@ export class NoteController {
   async update(
     @Param('id')
     id: PropertyType<NoteEntity, 'id'>,
-    @Body() dto: Partial<NoteEntity>,
+    @Body() dto: NotePatchDto,
   ): Promise<NoteEntity> {
-    return this.noteService.update({
-      id,
-      ...dto,
-    })
+    return this.noteService.update(id, dto)
   }
 
   @Delete(':id')

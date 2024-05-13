@@ -121,22 +121,33 @@ describe('NoteService', () => {
     it('should update an existing note', async () => {
       const note = {
         id: '0051bc76-275e-4940-a2d4-1aac8549e134',
-        title: 'Test Note update()',
+        title: 'Test Note update() 1',
         content:
           'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
       }
+
+      const notePatchDto = {
+        title: 'Test Note update() 2',
+      }
+
       const noteRepository = {
-        save: jest.fn().mockResolvedValue(note),
+        save: jest.fn().mockResolvedValue({
+          ...note,
+          ...notePatchDto,
+        }),
       }
       const service = new NoteService(noteRepository as any)
 
-      expect(await service.update(note)).toBe(note)
+      expect(await service.update(note.id, notePatchDto)).toBe({
+        ...note,
+        ...notePatchDto,
+      })
     })
 
     it('should throw an error if the note is invalid', async () => {
       const service = new NoteService({} as any)
 
-      await expect(service.update({})).rejects.toThrow('Invalid note')
+      await expect(service.update('', {})).rejects.toThrow('Invalid note')
     })
 
     it('should throw an error if the note cannot be updated', async () => {
@@ -145,7 +156,11 @@ describe('NoteService', () => {
       }
       const service = new NoteService(noteRepository as any)
 
-      await expect(service.update({})).rejects.toThrow('Cannot update note')
+      await expect(
+        service.update('427ee8fe-b502-423a-9a04-04943f975b72', {
+          title: 'Test Note update() 3',
+        }),
+      ).rejects.toThrow('Cannot update note')
     })
   })
 

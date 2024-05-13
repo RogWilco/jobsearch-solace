@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, type PropertyType } from 'typeorm'
 import { NoteEntity } from './note.entity'
 
+type NoteId = PropertyType<NoteEntity, 'id'>
+
 @Injectable()
 export class NoteService {
   constructor(
@@ -15,7 +17,7 @@ export class NoteService {
    *
    * @returns all notes
    */
-  public async getMany(): Promise<NoteEntity[]> {
+  async getMany(): Promise<NoteEntity[]> {
     return this.noteRepository.find()
   }
 
@@ -28,7 +30,7 @@ export class NoteService {
    *
    * @returns the corresponding note
    */
-  getOne(id: PropertyType<NoteEntity, 'id'>): Promise<NoteEntity> {
+  async getOne(id: NoteId): Promise<NoteEntity> {
     if (!id) throw new Error('Invalid ID')
 
     return this.noteRepository.findOneOrFail({ where: { id } })
@@ -41,8 +43,8 @@ export class NoteService {
    *
    * @returns the created note
    */
-  create(note: Partial<NoteEntity>): Promise<NoteEntity> {
-    return this.noteRepository.save(note)
+  async create(data: Partial<NoteEntity>): Promise<NoteEntity> {
+    return this.noteRepository.save(data)
   }
 
   /**
@@ -52,16 +54,12 @@ export class NoteService {
    *
    * @returns the updated note
    */
-  update(note: Partial<NoteEntity>): NoteEntity {
-    return {
-      id: '1',
+  async update(id: NoteId, data: Partial<NoteEntity>): Promise<NoteEntity> {
+    const note = await this.noteRepository.findOneOrFail({
+      where: { id: id },
+    })
 
-      title: 'Note 1',
-      content: 'This is a note',
-      created: new Date(),
-      updated: new Date(),
-      ...note,
-    }
+    return this.noteRepository.save({ ...note, ...data })
   }
 
   /**
@@ -69,7 +67,7 @@ export class NoteService {
    *
    * @param id the ID of the note to delete
    */
-  delete(id: string): void {
+  async delete(id: NoteId): Promise<void> {
     id
     return
   }
