@@ -1,40 +1,35 @@
 import { Injectable } from '@nestjs/common'
-
-export type Note = {
-  id: string
-  title: string
-  description: string
-  created: Date
-  updated: Date
-}
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository, type PropertyType } from 'typeorm'
+import { NoteEntity } from './note.entity'
 
 @Injectable()
 export class NoteService {
-  constructor() {}
+  constructor(
+    @InjectRepository(NoteEntity)
+    private readonly noteRepository: Repository<NoteEntity>,
+  ) {}
 
-  getMany(): Note[] {
-    return []
+  public async getMany(): Promise<NoteEntity[]> {
+    return this.noteRepository.find()
   }
 
-  getOne(): Note {
+  getOne(id: PropertyType<NoteEntity, 'id'>): Promise<NoteEntity> {
+    if (!id) throw new Error('Invalid ID')
+
+    return this.noteRepository.findOneOrFail({ where: { id } })
+  }
+
+  create(note: Partial<NoteEntity>): Promise<NoteEntity> {
+    return this.noteRepository.save(note)
+  }
+
+  update(note: Partial<NoteEntity>): NoteEntity {
     return {
       id: '1',
-      title: 'Note 1',
-      description: 'This is a note',
-      created: new Date(),
-      updated: new Date(),
-    }
-  }
 
-  create(note: Note): Note {
-    return note
-  }
-
-  update(note: Partial<Note>): Note {
-    return {
-      id: '1',
       title: 'Note 1',
-      description: 'This is a note',
+      content: 'This is a note',
       created: new Date(),
       updated: new Date(),
       ...note,
