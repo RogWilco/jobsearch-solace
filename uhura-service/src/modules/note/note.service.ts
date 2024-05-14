@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, type PropertyType } from 'typeorm'
 import { NoteEntity } from './note.entity'
@@ -18,7 +18,7 @@ export class NoteService {
    * @returns all notes
    */
   async getMany(): Promise<NoteEntity[]> {
-    return this.noteRepository.find()
+    return await this.noteRepository.find()
   }
 
   /**
@@ -31,9 +31,7 @@ export class NoteService {
    * @returns the corresponding note
    */
   async getOne(id: NoteId): Promise<NoteEntity> {
-    if (!id) throw new Error('Invalid ID')
-
-    return this.noteRepository.findOneOrFail({ where: { id } })
+    return await this.noteRepository.findOneOrFail({ where: { id } })
   }
 
   /**
@@ -44,7 +42,7 @@ export class NoteService {
    * @returns the created note
    */
   async create(data: Partial<NoteEntity>): Promise<NoteEntity> {
-    return this.noteRepository.save(data)
+    return await this.noteRepository.save(data)
   }
 
   /**
@@ -61,7 +59,7 @@ export class NoteService {
 
     data.updated = new Date()
 
-    return this.noteRepository.save({ ...note, ...data })
+    return await this.noteRepository.save({ ...note, ...data })
   }
 
   /**
@@ -70,7 +68,14 @@ export class NoteService {
    * @param id the ID of the note to delete
    */
   async delete(id: NoteId): Promise<void> {
-    id
+    const note = await this.noteRepository.findOne({ where: { id } })
+
+    if (!note) {
+      throw new NotFoundException('Note not found')
+    }
+
+    await this.noteRepository.delete({ id })
+
     return
   }
 }

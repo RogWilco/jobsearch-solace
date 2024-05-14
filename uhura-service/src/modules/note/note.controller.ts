@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   Patch,
   Post,
@@ -45,7 +46,7 @@ export class NoteController {
   })
   @Get()
   async getMany(): Promise<NoteGetDto[]> {
-    return this.noteService.getMany()
+    return await this.noteService.getMany()
   }
 
   /**
@@ -72,7 +73,7 @@ export class NoteController {
     @Param('id')
     id: PropertyType<NoteEntity, 'id'>,
   ): Promise<NoteGetDto> {
-    return this.noteService.getOne(id)
+    return await this.noteService.getOne(id)
   }
 
   /**
@@ -92,7 +93,7 @@ export class NoteController {
   })
   @Post()
   async create(@Body() dto: NotePostDto): Promise<NoteEntity> {
-    return this.noteService.create(dto)
+    return await this.noteService.create(dto)
   }
 
   /**
@@ -125,7 +126,7 @@ export class NoteController {
     id: PropertyType<NoteEntity, 'id'>,
     @Body() dto: NotePatchDto,
   ): Promise<NoteEntity> {
-    return this.noteService.update(id, dto)
+    return await this.noteService.update(id, dto)
   }
 
   /**
@@ -145,9 +146,8 @@ export class NoteController {
     description: 'The note ID',
   })
   @Delete(':id')
+  @HttpCode(204)
   async delete(@Param('id') id: PropertyType<NoteEntity, 'id'>): Promise<void> {
-    if (!id) throw new Error('Invalid ID')
-
-    return this.noteService.delete(id)
+    return await this.noteService.delete(id)
   }
 }

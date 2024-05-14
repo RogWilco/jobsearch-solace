@@ -1,9 +1,7 @@
 import {
   CallHandler,
   ExecutionContext,
-  HttpException,
   Injectable,
-  InternalServerErrorException,
   Logger,
   NestInterceptor,
 } from '@nestjs/common'
@@ -41,16 +39,14 @@ export class RequestLoggingInterceptor implements NestInterceptor {
               ` success... ${Date.now() - now}ms`,
           ),
         error: (err) => {
-          if (err instanceof HttpException) {
-            const httpErr: HttpException = err
-            httpErr.message = ` Request => ${httpErr.message}`
-            throwError(() => httpErr)
-          } else {
-            this.logger.error(err.stack)
-            throw new InternalServerErrorException(
-              `Request FAILED: ${err.message}`,
-            )
-          }
+          this.logger.error(
+            'Request: ' +
+              context.switchToHttp().getRequest().method +
+              ' => ' +
+              context.switchToHttp().getRequest().path +
+              ` failed... ${Date.now() - now}ms`,
+          )
+          throwError(() => err)
         },
       }),
     )

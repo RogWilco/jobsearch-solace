@@ -5,6 +5,7 @@ import { NestExpressApplication } from '@nestjs/platform-express'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import * as PACKAGE from 'package.json'
 import { expand } from './common/core.utils'
+import { GlobalExceptionFilter } from './common/filters/global.exception-filter'
 import { GlobalHeadersInterceptor } from './common/interceptors/global-headers.interceptor'
 import { RequestLoggingInterceptor } from './common/interceptors/request-logging.interceptor'
 import { AppModule } from './modules/app.module'
@@ -14,13 +15,14 @@ async function main() {
   const config = app.get(ConfigService)
 
   app.disable('x-powered-by')
-  app.useGlobalPipes(new ValidationPipe({ transform: true }))
   app.useGlobalInterceptors(
     new GlobalHeadersInterceptor({
       'X-Application-Version': expand`${'name'}/${'version'}`(PACKAGE),
     }),
     new RequestLoggingInterceptor(),
   )
+  app.useGlobalPipes(new ValidationPipe({ transform: true }))
+  app.useGlobalFilters(new GlobalExceptionFilter())
 
   // Setup Swagger
   SwaggerModule.setup(
