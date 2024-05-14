@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { Length } from 'class-validator'
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
 import {
   DtoPropertyAllow,
@@ -19,6 +20,7 @@ export class NoteEntity extends BaseEntity {
   @DtoPropertyAllow('patch')
   @DtoPropertyInclude('get')
   @DtoPropertyRequire('post')
+  @Length(1, 32)
   title?: string
 
   @ApiProperty()
@@ -26,6 +28,7 @@ export class NoteEntity extends BaseEntity {
   @DtoPropertyAllow('patch')
   @DtoPropertyInclude('get')
   @DtoPropertyRequire('post')
+  @Length(20, 300)
   content?: string
 
   @ApiProperty()

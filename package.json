@@ -19,5 +19,10 @@
     "prettier-plugin-sh": "^0.14.0",
     "typescript": "^5.4.5",
     "yarn": "^1.22.22"
+  },
+  "engines": {
+    "node": "20.x",
+    "npm": "10.x",
+    "yarn": "1.x"
   }
 }
