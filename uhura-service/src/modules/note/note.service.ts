@@ -59,6 +59,8 @@ export class NoteService {
       where: { id: id },
     })
 
+    data.updated = new Date()
+
     return this.noteRepository.save({ ...note, ...data })
   }
 
