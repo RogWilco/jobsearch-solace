@@ -8,7 +8,7 @@ import type { NoteEntity } from '../src/modules/note/note.entity'
 import { NoteModule } from '../src/modules/note/note.module'
 import { TestUtils } from './test.utils'
 
-describe('AppController (e2e)', () => {
+describe('API Tests', () => {
   let app: INestApplication
 
   let noteRepository: Repository<NoteEntity>
@@ -67,6 +67,42 @@ describe('AppController (e2e)', () => {
         .expect((res) => {
           expect(res.body).toBeInstanceOf(Array)
           expect(res.body).toHaveLength(0)
+        })
+    })
+
+    test('successfully filters notes by a search query', async () => {
+      const expectedNotes = await Promise.all(
+        [
+          TestUtils.createNote({
+            title: 'Foo Note 1',
+            content: 'Note 1 content',
+          }),
+          TestUtils.createNote({
+            title: 'Test Note 2',
+            content: 'Note 2 content with foo',
+          }),
+          TestUtils.createNote({
+            title: 'Test Note 3',
+            content: 'foo',
+          }),
+        ].map((note) => noteRepository.save(note)),
+      )
+
+      await Promise.all(
+        TestUtils.createNotes(3).map((note) => noteRepository.save(note)),
+      )
+
+      return await request(app.getHttpServer())
+        .get('/notes?search=foo')
+        .expect(200)
+        .expect((res) => {
+          expect(res.body).toBeInstanceOf(Array)
+          expect(res.body).toHaveLength(expectedNotes.length)
+          expect(res.body).toEqual(
+            expect.arrayContaining(
+              expectedNotes.map((note) => TestUtils.toJson(note)),
+            ),
+          )
         })
     })
 
@@ -213,14 +249,14 @@ describe('AppController (e2e)', () => {
         .expect(404)
     })
 
-    // test('fails (500) when an unexpected error occurs', async () => {
-    //   jest
-    //     .spyOn(noteRepository, 'delete')
-    //     .mockRejectedValue(new Error('Unexpected error'))
+    test('fails (500) when an unexpected error occurs', async () => {
+      jest
+        .spyOn(noteRepository, 'findOne')
+        .mockRejectedValue(new Error('Unexpected error'))
 
-    //   return await request(app.getHttpServer())
-    //     .delete('/notes/00000000-0000-0000-0000-000000000000')
-    //     .expect(500)
-    // })
+      return await request(app.getHttpServer())
+        .delete('/notes/00000000-0000-0000-0000-000000000000')
+        .expect(500)
+    })
   })
 })

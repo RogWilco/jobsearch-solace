@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository, type PropertyType } from 'typeorm'
+import { ILike, Repository, type PropertyType } from 'typeorm'
 import { NoteEntity } from './note.entity'
 
 type NoteId = PropertyType<NoteEntity, 'id'>
@@ -15,9 +15,20 @@ export class NoteService {
   /**
    * Retrieves all notes.
    *
-   * @returns all notes
+   * @param search an optional search query
+   *
+   * @returns all notes, filtered by the search query if provided
    */
-  async getMany(): Promise<NoteEntity[]> {
+  async getMany(search?: string): Promise<NoteEntity[]> {
+    if (search && search.length > 0) {
+      return await this.noteRepository.find({
+        where: [
+          { title: ILike(`%${search}%`) },
+          { content: ILike(`%${search}%`) },
+        ],
+      })
+    }
+
     return await this.noteRepository.find()
   }
 
