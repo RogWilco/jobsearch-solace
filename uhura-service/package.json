@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "private": true,
   "license": "UNLICENSED",
-  "author": "Nick Williams",
+  "author": "Nick Williams <git@nickawilliams.com>",
   "main": "src/main",
   "scripts": {
     "build": "nest build -p tsconfig.build.json",
@@ -68,6 +68,7 @@
   },
   "engines": {
     "node": "20.x",
-    "npm": "10.x"
+    "npm": "10.x",
+    "yarn": "1.x"
   }
 }
