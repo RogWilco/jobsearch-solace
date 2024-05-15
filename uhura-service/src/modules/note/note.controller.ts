@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common'
 import {
   ApiBadRequestResponse,
@@ -38,15 +39,17 @@ export class NoteController {
   /**
    * Retrieves all notes.
    *
-   * @returns all notes
+   * @param search an optional search query
+   *
+   * @returns all notes, filtered by the search query if provided
    */
   @ApiOkResponse({
     type: [NoteGetDto],
     description: 'The notes were fetched successfully',
   })
   @Get()
-  async getMany(): Promise<NoteGetDto[]> {
-    return await this.noteService.getMany()
+  async getMany(@Query('search') search?: string): Promise<NoteGetDto[]> {
+    return await this.noteService.getMany(search)
   }
 
   /**
