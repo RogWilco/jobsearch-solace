@@ -16,7 +16,9 @@
     "@mantine/core": "^7.9.1",
     "@mantine/hooks": "^7.9.1",
     "@mantine/modals": "^7.9.1",
+    "@tabler/icons-react": "^3.4.0",
     "axios": "^1.6.8",
+    "clsx": "^2.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
