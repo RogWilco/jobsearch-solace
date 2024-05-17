@@ -1,6 +1,11 @@
 import { randomUUID } from 'crypto'
 import type { DeleteResult, ObjectLiteral, Repository } from 'typeorm'
-import { NoteEntity } from '../src/modules/note/note.entity'
+import {
+  NoteDirection,
+  NoteEntity,
+  NoteStatus,
+  NoteType,
+} from '../src/modules/note/note.entity'
 
 export class TestUtils {
   public static async tearDownRepository<T extends ObjectLiteral>(
@@ -23,6 +28,10 @@ export class TestUtils {
     return randomString
   }
 
+  public static randomNumber(length: number = 5): number {
+    return Math.floor(Math.random() * length)
+  }
+
   public static randomSentences(sentences: number): string {
     const loremIpsumSentences = [
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
@@ -42,10 +51,43 @@ export class TestUtils {
     return loremIpsumText.trim()
   }
 
+  public static pickRandomEnumValue(enumType: any): any {
+    const values = Object.values(enumType)
+    const randomIndex = Math.floor(Math.random() * values.length)
+    return values[randomIndex]
+  }
+
+  public static randomAddressByType(type: NoteType): string {
+    switch (type) {
+      case NoteType.Call:
+      case NoteType.Fax:
+        return `+1 (${TestUtils.randomNumber(3)}) ${TestUtils.randomNumber(3)}-${TestUtils.randomNumber(4)}`
+
+      case NoteType.Email:
+        return TestUtils.randomString(5) + '@starfleet.com'
+
+      case NoteType.Mail:
+
+      case NoteType.Submission:
+        return 'http://www.example.com'
+
+      case NoteType.Other:
+        return 'USS Enterprise, Engineering'
+
+      case NoteType.Meeting:
+      default:
+        return "USS Enterprise, Captain's Quarters"
+    }
+  }
+
   public static createNote({
     id,
     title,
     content,
+    type,
+    address,
+    direction,
+    status,
     created,
     updated,
   }: Partial<NoteEntity> = {}): NoteEntity {
@@ -55,6 +97,10 @@ export class TestUtils {
       id: id ?? randomUUID(),
       title: title ?? `Test Note ${TestUtils.randomString()}`,
       content: content ?? TestUtils.randomSentences(3),
+      type: type ?? TestUtils.pickRandomEnumValue(NoteType),
+      address: address ?? "USS Enterprise, Captain's Quarters",
+      direction: direction ?? TestUtils.pickRandomEnumValue(NoteDirection),
+      status: status ?? TestUtils.pickRandomEnumValue(NoteStatus),
       created: created ?? NOW,
       updated: updated ?? NOW,
     })

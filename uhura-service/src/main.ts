@@ -24,6 +24,10 @@ async function main() {
   app.useGlobalPipes(new ValidationPipe({ transform: true }))
   app.useGlobalFilters(new GlobalExceptionFilter())
 
+  app.enableCors({
+    origin: '*',
+  })
+
   // Setup Swagger
   SwaggerModule.setup(
     'api',
