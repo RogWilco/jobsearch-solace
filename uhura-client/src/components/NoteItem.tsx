@@ -16,9 +16,12 @@ import { NoteMetadata } from './NoteMetadata'
 
 export const NoteItem = ({
   note,
+  onDelete,
   children,
   ...props
-}: { note: Note } & React.ComponentProps<typeof Timeline.Item> & {
+}: { note: Note; onDelete: (note: Note) => void } & React.ComponentProps<
+  typeof Timeline.Item
+> & {
     children?: React.ReactNode
   }) => {
   const [opened, { close, open }] = useDisclosure(false)
@@ -34,6 +37,19 @@ export const NoteItem = ({
 
   function handleMouseLeave() {
     pendingClose = setTimeout(close, 500)
+  }
+
+  async function handleDeleteClick() {
+    // Prompt the user to confirm the deletion
+    if (!window.confirm('Are you sure you want to delete this note?')) {
+      return
+    }
+
+    try {
+      await onDelete?.(note)
+    } catch (e) {
+      console.error('Failed to delete note', e)
+    }
   }
 
   return (
@@ -102,7 +118,7 @@ export const NoteItem = ({
                     size="input-xs"
                     variant="subtle"
                     color="white"
-                    onClick={() => console.log('Delete note', id)}
+                    onClick={handleDeleteClick}
                   >
                     <IconTrash />
                   </ActionIcon>

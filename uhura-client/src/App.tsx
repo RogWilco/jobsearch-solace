@@ -42,6 +42,15 @@ export default function App() {
     primaryColor: 'blue',
   })
 
+  const handleNoteDelete = async (note: Note) => {
+    try {
+      await NoteService.instance.delete(note.id)
+      setNotes((prev) => prev.filter((n) => n.id !== note.id))
+    } catch (error) {
+      console.error('Failed to delete note', error)
+    }
+  }
+
   return (
     <MantineProvider theme={theme} defaultColorScheme="auto">
       <AppShell>
@@ -67,9 +76,6 @@ export default function App() {
                     <IconPlus className={classes.icon} stroke={1.5} />
                   </ActionIcon>
                 </Tooltip>
-                {/* <a className={classes.link} onClick={(e) => e.preventDefault()}>
-
-                </a> */}
               </Group>
               <Autocomplete
                 className={classes.search}
@@ -88,7 +94,9 @@ export default function App() {
         </AppShell.Header>
         <AppShell.Main className={classes.main}>
           <Container mt="sm">
-            <NoteList notes={notes}>{loading && <NoteListLoader />}</NoteList>
+            <NoteList notes={notes} onDelete={handleNoteDelete}>
+              {loading && <NoteListLoader />}
+            </NoteList>
           </Container>
         </AppShell.Main>
       </AppShell>
