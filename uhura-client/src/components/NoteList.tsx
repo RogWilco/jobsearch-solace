@@ -13,7 +13,7 @@ export const NoteList = ({
     <Timeline bulletSize={32} lineWidth={4} {...props}>
       {children}
       {notes.map((note) => (
-        <NoteItem note={note} />
+        <NoteItem key={note.id} note={note} />
       ))}
     </Timeline>
   )

@@ -1,4 +1,4 @@
-import { Badge, Text } from '@mantine/core'
+import { Badge, Group, Text } from '@mantine/core'
 import { Note } from '../common/types'
 import { NoteUtils } from '../lib/note.utils'
 
@@ -8,13 +8,15 @@ export const NoteMetadata = ({ note }: { note: Note }) => {
   const url = NoteUtils.getAddressUrl(note)
 
   return (
-    <Text c="dark" fw={700}>
-      {meta}
+    <Group>
+      <Text c="dark" fw={700}>
+        {meta}
+      </Text>
       <a href={url}>
         <Badge color="blue" variant="filled" tt="inherit">
           {address}
         </Badge>
       </a>
-    </Text>
+    </Group>
   )
 }

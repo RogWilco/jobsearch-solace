@@ -38,7 +38,6 @@ export const NoteItem = ({
 
   return (
     <Timeline.Item
-      key={id}
       bullet={
         <NoteBullet
           type={type}
@@ -103,6 +102,7 @@ export const NoteItem = ({
                     size="input-xs"
                     variant="subtle"
                     color="white"
+                    onClick={() => console.log('Delete note', id)}
                   >
                     <IconTrash />
                   </ActionIcon>
@@ -112,7 +112,7 @@ export const NoteItem = ({
           </Card>
         </Popover.Target>
       </Popover>
-      {children}
+      {/* {children} */}
     </Timeline.Item>
   )
 }
