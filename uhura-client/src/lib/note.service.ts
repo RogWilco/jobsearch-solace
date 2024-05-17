@@ -2,7 +2,7 @@ import axios from 'axios'
 import { Note } from '../common/types'
 
 /**
- * A service for interacting with notes.
+ * A service for interacting with the uhura-service notes API.
  */
 export class NoteService {
   /**

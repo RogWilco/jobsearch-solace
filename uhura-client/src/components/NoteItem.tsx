@@ -1,6 +1,18 @@
-import { Badge, Card, Text, Timeline, Title } from '@mantine/core'
+import {
+  ActionIcon,
+  Card,
+  Popover,
+  Stack,
+  Text,
+  Timeline,
+  Title,
+  Tooltip,
+} from '@mantine/core'
+import { useDisclosure } from '@mantine/hooks'
+import { IconEdit, IconTrash } from '@tabler/icons-react'
 import type { Note } from '../common/types'
 import { NoteBullet } from './NoteBullet'
+import { NoteMetadata } from './NoteMetadata'
 
 export const NoteItem = ({
   note,
@@ -9,72 +21,19 @@ export const NoteItem = ({
 }: { note: Note } & React.ComponentProps<typeof Timeline.Item> & {
     children?: React.ReactNode
   }) => {
-  const { id, title, content, type, direction, status, address } = note
+  const [opened, { close, open }] = useDisclosure(false)
 
-  function getTitlePrefix() {
-    let title = `${direction ? `${direction} ` : ''}${type}`
+  const { id, title, content, type, direction, status } = note
 
-    if (address) {
-      switch (type) {
-        case 'call':
-        case 'fax':
-        case 'email':
-        case 'mail':
-        case 'submission':
-          title += ` ${direction === 'inbound' ? 'from ' : 'to '}`
-          break
+  let pendingClose: NodeJS.Timeout
 
-        case 'meeting':
-          title += ` at `
-          break
-
-        case 'other':
-          title += ` for `
-          break
-      }
-    }
-
-    return title
+  function handleMouseEnter() {
+    clearTimeout(pendingClose)
+    open()
   }
 
-  function getAddressLink() {
-    let url
-
-    switch (type) {
-      case 'mail':
-      case 'meeting':
-        url = `https://maps.google.com/?q=${address}`
-        break
-
-      case 'call':
-      case 'fax':
-        url = `tel:${address}`
-        break
-
-      case 'email':
-        url = `mailto:${address}`
-        break
-
-      default:
-        break
-    }
-
-    return (
-      <a href={url}>
-        <Badge color="blue" variant="filled" tt="inherit">
-          {address}
-        </Badge>
-      </a>
-    )
-  }
-
-  function getNoteMetadata() {
-    return (
-      <>
-        {getTitlePrefix()}
-        {getAddressLink()}
-      </>
-    )
+  function handleMouseLeave() {
+    pendingClose = setTimeout(close, 500)
   }
 
   return (
@@ -90,13 +49,69 @@ export const NoteItem = ({
       }
       {...props}
     >
-      <Card shadow="xs" padding="md" radius="md">
-        <Title order={4}>{title}</Title>
-        <Text c="dark">{content}</Text>
-        <Text c="dark" fw={700}>
-          {getNoteMetadata()}
-        </Text>
-      </Card>
+      <Popover
+        opened={opened}
+        shadow="xs"
+        withArrow
+        position="right"
+        transitionProps={{
+          transition: 'fade-left',
+          duration: 100,
+          exitDuration: 300,
+          timingFunction: 'ease',
+        }}
+        onClose={close}
+      >
+        <Popover.Target>
+          <Card
+            shadow="xs"
+            padding="xs"
+            radius="md"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            <Title order={4}>{title}</Title>
+            <Text c="dark">{content}</Text>
+            <NoteMetadata note={note} />
+            <Popover.Dropdown p={10}>
+              <Stack gap="xs">
+                <Tooltip
+                  label="Edit"
+                  position="bottom-start"
+                  withArrow
+                  arrowPosition="center"
+                  openDelay={300}
+                >
+                  <ActionIcon
+                    aria-label="Edit"
+                    size="input-xs"
+                    variant="subtle"
+                    color="white"
+                  >
+                    <IconEdit />
+                  </ActionIcon>
+                </Tooltip>
+                <Tooltip
+                  label="Delete"
+                  position="bottom-start"
+                  withArrow
+                  arrowPosition="center"
+                  openDelay={300}
+                >
+                  <ActionIcon
+                    aria-label="Delete"
+                    size="input-xs"
+                    variant="subtle"
+                    color="white"
+                  >
+                    <IconTrash />
+                  </ActionIcon>
+                </Tooltip>
+              </Stack>
+            </Popover.Dropdown>
+          </Card>
+        </Popover.Target>
+      </Popover>
       {children}
     </Timeline.Item>
   )

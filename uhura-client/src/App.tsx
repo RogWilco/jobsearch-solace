@@ -1,10 +1,13 @@
 import '@mantine/core/styles.css'
 
 import {
+  ActionIcon,
   AppShell,
   Autocomplete,
+  Container,
   Group,
   MantineProvider,
+  Tooltip,
   createTheme,
   rem,
 } from '@mantine/core'
@@ -13,6 +16,7 @@ import { useEffect, useState } from 'react'
 import classes from './App.module.css'
 import { Note } from './common/types'
 import { NoteList } from './components/NoteList'
+import { NoteListLoader } from './components/NoteListLoader'
 import { NoteService } from './lib/note.service'
 
 export default function App() {
@@ -44,13 +48,28 @@ export default function App() {
         <AppShell.Header className={classes.header}>
           <div className={classes.inner}>
             <Group>
-              <h1>Uhura Service</h1>
+              <h1>Uhura</h1>
             </Group>
             <Group>
               <Group ml={50} gap={5} className={classes.links} visibleFrom="xs">
-                <a className={classes.link} onClick={(e) => e.preventDefault()}>
-                  <IconPlus className={classes.icon} stroke={1.5} />
-                </a>
+                <Tooltip
+                  label="New"
+                  position="bottom-start"
+                  withArrow
+                  arrowPosition="center"
+                  openDelay={230}
+                >
+                  <ActionIcon
+                    size="input-sm"
+                    variant="default"
+                    aria-label="Create a new note"
+                  >
+                    <IconPlus className={classes.icon} stroke={1.5} />
+                  </ActionIcon>
+                </Tooltip>
+                {/* <a className={classes.link} onClick={(e) => e.preventDefault()}>
+
+                </a> */}
               </Group>
               <Autocomplete
                 className={classes.search}
@@ -68,9 +87,9 @@ export default function App() {
           </div>
         </AppShell.Header>
         <AppShell.Main className={classes.main}>
-          <Group>
-            <NoteList notes={notes} />
-          </Group>
+          <Container mt="sm">
+            <NoteList notes={notes}>{loading && <NoteListLoader />}</NoteList>
+          </Container>
         </AppShell.Main>
       </AppShell>
     </MantineProvider>
