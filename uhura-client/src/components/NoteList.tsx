@@ -1,5 +1,4 @@
 import { Timeline } from '@mantine/core'
-import { useState } from 'react'
 import type { Note } from '../common/types'
 import { NoteItem } from './NoteItem'
 
@@ -10,18 +9,11 @@ export const NoteList = ({
 }: { notes: Note[] } & React.ComponentProps<typeof Timeline> & {
     children?: React.ReactNode
   }) => {
-  const [currentNotes, setNotes] = useState<Note[]>(notes)
-
   return (
-    <Timeline
-      bulletSize={32}
-      lineWidth={2}
-      active={currentNotes.length}
-      {...props}
-    >
+    <Timeline bulletSize={32} lineWidth={4} {...props}>
       {children}
-      {currentNotes.map((note) => (
-        <NoteItem {...note} />
+      {notes.map((note) => (
+        <NoteItem note={note} />
       ))}
     </Timeline>
   )

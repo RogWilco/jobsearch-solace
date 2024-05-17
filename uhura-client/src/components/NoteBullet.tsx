@@ -1,15 +1,19 @@
+import { ThemeIcon } from '@mantine/core'
 import {
   Icon,
-  IconAt,
   IconCalendarEvent,
-  IconCircle,
-  IconFileText,
-  IconInbox,
-  IconOutbound,
+  IconDialpad,
+  IconDialpadFilled,
+  IconFileDownload,
+  IconFileUpload,
+  IconMailDown,
+  IconMailFilled,
+  IconMailOpened,
+  IconMailUp,
   IconPhoneIncoming,
   IconPhoneOutgoing,
-  IconPrinter,
   IconProps,
+  IconSquareRounded,
 } from '@tabler/icons-react'
 import React from 'react'
 import type { Note } from '../common/types'
@@ -17,33 +21,41 @@ import type { Note } from '../common/types'
 export const NoteBullet = ({
   type,
   direction,
+  status,
   ...props
-}: Pick<Note, 'type' | 'direction'> &
+}: Pick<Note, 'type' | 'direction' | 'status'> &
   IconProps &
   React.RefAttributes<Icon>) => {
-  const IconMap = {
+  const iconMap = {
     call: {
       inbound: IconPhoneIncoming,
       outbound: IconPhoneOutgoing,
     },
     fax: {
-      inbound: IconPrinter,
-      outbound: IconPrinter,
+      inbound: IconDialpad,
+      outbound: IconDialpadFilled,
     },
     email: {
-      inbound: IconAt,
-      outbound: IconAt,
+      inbound: IconMailDown,
+      outbound: IconMailUp,
     },
     mail: {
-      inbound: IconInbox,
-      outbound: IconOutbound,
+      inbound: IconMailOpened,
+      outbound: IconMailFilled,
     },
     submission: {
-      inbound: IconFileText,
-      outbound: IconFileText,
+      inbound: IconFileDownload,
+      outbound: IconFileUpload,
     },
     meeting: IconCalendarEvent,
-    other: IconCircle,
+    other: IconSquareRounded,
+  }
+
+  const colorMap = {
+    success: 'green',
+    failed: 'red',
+    pending: 'blue',
+    incomplete: 'orange',
   }
 
   let Icon
@@ -51,12 +63,16 @@ export const NoteBullet = ({
   switch (type) {
     case 'meeting':
     case 'other':
-      Icon = IconMap[type]
+      Icon = iconMap[type]
       break
 
     default:
-      Icon = IconMap[type][direction as 'inbound' | 'outbound']
+      Icon = iconMap[type][direction as 'inbound' | 'outbound']
   }
 
-  return <Icon {...props} />
+  return (
+    <ThemeIcon radius="xl" color={colorMap[status]}>
+      <Icon {...props} />
+    </ThemeIcon>
+  )
 }

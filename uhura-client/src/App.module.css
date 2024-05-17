@@ -1,10 +1,6 @@
-h1 {
-  font-size: 12pt !important;
-}
-
 .header {
-  height: rem(60px);
-  margin-bottom: rem(120px);
+  height: rem(60);
+  margin-bottom: rem(120);
   background-color: var(--mantine-color-body);
   border-bottom: rem(1px) solid
     light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
@@ -14,7 +10,7 @@ h1 {
 
 .main {
   display: flex;
-  padding: rem(20);
+  padding: rem(80) rem(20);
   flex-direction: column;
   align-items: center;
   justify-content: center;
