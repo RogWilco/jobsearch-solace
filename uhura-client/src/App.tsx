@@ -42,7 +42,16 @@ export default function App() {
     primaryColor: 'blue',
   })
 
-  const handleNoteDelete = async (note: Note) => {
+  const handleNoteCreateClick = () => {}
+
+  const handleNoteEditClick = () => {}
+
+  const handleNoteDeleteClick = async (note: Note) => {
+    // Prompt the user to confirm the deletion
+    if (!window.confirm('Are you sure you want to delete this note?')) {
+      return
+    }
+
     try {
       await NoteService.instance.delete(note.id)
       setNotes((prev) => prev.filter((n) => n.id !== note.id))
@@ -72,6 +81,7 @@ export default function App() {
                     size="input-sm"
                     variant="default"
                     aria-label="Create a new note"
+                    onClick={handleNoteCreateClick}
                   >
                     <IconPlus className={classes.icon} stroke={1.5} />
                   </ActionIcon>
@@ -94,7 +104,12 @@ export default function App() {
         </AppShell.Header>
         <AppShell.Main className={classes.main}>
           <Container mt="sm">
-            <NoteList notes={notes} onDelete={handleNoteDelete}>
+            <NoteList
+              notes={notes}
+              onCreateClick={handleNoteCreateClick}
+              onEditClick={handleNoteEditClick}
+              onDeleteClick={handleNoteDeleteClick}
+            >
               {loading && <NoteListLoader />}
             </NoteList>
           </Container>
