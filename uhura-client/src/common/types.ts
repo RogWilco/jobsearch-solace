@@ -2,10 +2,10 @@ export type Note = {
   id: string
   title: string
   content: string
-  type: 'call' | 'fax' | 'email' | 'mail' | 'meeting' | 'submission' | 'other'
-  address: string
-  direction?: 'inbound' | 'outbound'
   status: 'success' | 'pending' | 'failed'
+  type: 'call' | 'fax' | 'email' | 'mail' | 'meeting' | 'submission' | 'other'
+  direction?: 'inbound' | 'outbound'
+  address: string
   created: string
   updated: string
 }
