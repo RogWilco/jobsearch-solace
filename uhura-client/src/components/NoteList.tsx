@@ -5,6 +5,7 @@ import { NoteItem } from './NoteItem'
 
 export const NoteList = ({
   notes = [],
+  search = '',
   onCreateClick,
   onEditClick,
   onDeleteClick,
@@ -12,6 +13,7 @@ export const NoteList = ({
   ...props
 }: {
   notes: Note[]
+  search: string
   onCreateClick: () => void
   onEditClick: (note: Note) => void
   onDeleteClick: (note: Note) => void
@@ -40,14 +42,20 @@ export const NoteList = ({
           <Title order={4}>Add a new note</Title>
         </Card>
       </Timeline.Item>
-      {notes.map((note) => (
-        <NoteItem
-          key={note.id}
-          note={note}
-          onEditClick={onEditClick}
-          onDeleteClick={onDeleteClick}
-        />
-      ))}
+      {notes
+        .filter(
+          (n) =>
+            n.title.toLowerCase().includes(search.toLowerCase()) ||
+            n.content.toLowerCase().includes(search.toLowerCase()),
+        )
+        .map((note) => (
+          <NoteItem
+            key={note.id}
+            note={note}
+            onEditClick={onEditClick}
+            onDeleteClick={onDeleteClick}
+          />
+        ))}
     </Timeline>
   )
 }
