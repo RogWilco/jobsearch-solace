@@ -8,6 +8,7 @@ import {
   TextInput,
   Textarea,
 } from '@mantine/core'
+import { useState } from 'react'
 import { Note } from '../common/types'
 
 export type NoteFormMode = 'create' | 'edit'
@@ -19,34 +20,96 @@ export const NoteForm = ({
 }: {
   data: Partial<Note>
   mode: NoteFormMode
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void
+  onSubmit: (note: Partial<Note>) => void
 }) => {
+  const [title, setTitle] = useState(data.title)
+  const [content, setContent] = useState(data.content)
+  const [type, setType] = useState(data.type)
+  const [status, setStatus] = useState(data.status)
+  const [direction, setDirection] = useState(data.direction)
+  const [address, setAddress] = useState(data.address)
+
+  const handleFormChange = ({
+    target: { name, value },
+  }: {
+    target: {
+      name: string
+      value: string
+    }
+  }) => {
+    switch (name) {
+      case 'title':
+        setTitle(value)
+        break
+
+      case 'content':
+        setContent(value)
+        break
+
+      case 'type':
+        setType(value as Note['type'])
+        break
+
+      case 'status':
+        setStatus(value as Note['status'])
+        break
+
+      case 'direction':
+        setDirection(value as Note['direction'])
+        break
+
+      case 'address':
+        setAddress(value)
+        break
+    }
+  }
+
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    onSubmit({
+      id: data.id,
+      title,
+      content,
+      type,
+      status,
+      direction,
+      address,
+    })
+  }
+
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={handleFormSubmit}>
       <Stack>
         <Fieldset legend="Note Details" id="note-details">
           <Stack>
             <TextInput
+              name="title"
               label="Title"
               description=""
               placeholder="A concise description of the note."
-              defaultValue={data.title}
+              onChange={handleFormChange}
+              value={title}
             />
             <Textarea
+              name="content"
               label="Note Content"
               description=""
               placeholder="The contents of the note."
               autosize={true}
-              defaultValue={data.content}
+              onChange={handleFormChange}
+              value={content}
             />
           </Stack>
         </Fieldset>
         <Fieldset legend="Communication Details" id="communication-details">
           <Stack>
             <NativeSelect
+              name="type"
               label="Type"
               description=""
-              defaultValue={data.type}
+              onChange={handleFormChange}
+              value={type}
               data={[
                 { label: '- select a communication type -', value: '' },
                 { label: 'Call', value: 'call' },
@@ -60,8 +123,12 @@ export const NoteForm = ({
             />
             <InputLabel htmlFor="status">Status</InputLabel>
             <SegmentedControl
+              name="status"
               id="status"
-              defaultValue={data.status}
+              onChange={(v) =>
+                handleFormChange({ target: { name: 'status', value: v } })
+              }
+              value={status}
               data={[
                 { label: 'Success', value: 'success' },
                 { label: 'Pending', value: 'pending' },
@@ -70,18 +137,24 @@ export const NoteForm = ({
             />
             <InputLabel htmlFor="direction">Direction</InputLabel>
             <SegmentedControl
+              name="direction"
               id="direction"
-              defaultValue={data.direction}
+              onChange={(v) =>
+                handleFormChange({ target: { name: 'direction', value: v } })
+              }
+              value={direction}
               data={[
                 { label: 'Inbound', value: 'inbound' },
                 { label: 'Outbound', value: 'outbound' },
               ]}
             />
             <TextInput
+              name="address"
               label="Address"
               description=""
               placeholder="Contextual address or contact information."
-              defaultValue={data.address}
+              onChange={handleFormChange}
+              value={address}
             />
           </Stack>
         </Fieldset>

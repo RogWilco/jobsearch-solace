@@ -49,36 +49,70 @@ export default function App() {
   })
 
   const handleCreateClick = () => {
+    console.log('handleCreateClick')
     setNoteData({})
     setModalMode('create')
     openModal()
   }
 
   const handleEditClick = (note: Note) => {
+    console.log('handleEditClick', note)
     setNoteData(note)
     setModalMode('edit')
     openModal()
   }
 
   const handleDeleteClick = (note: Note) => {
+    console.log('handleDeleteClick', note)
     setNoteData(note)
     setModalMode('delete')
     openModal()
   }
 
-  const handleNoteCreate = () => {}
+  const handleNoteCreate = async (note: Note) => {
+    console.log('handleNoteCreate', note)
+    try {
+      const createdNote = await NoteService.instance.create(note)
 
-  const handleNoteUpdate = () => {}
+      setNotes((prev) => [...prev, createdNote])
+    } catch (error) {
+      console.error('Failed to create note', error)
+    } finally {
+      closeModal()
+    }
+  }
+
+  const handleNoteUpdate = async (note: Partial<Note>) => {
+    console.log('handleNoteUpdate', note)
+    if (!note.id) {
+      throw new Error(`Missing required note ID for update.`)
+    }
+    try {
+      const updatedNote = await NoteService.instance.update(note.id, note)
+
+      setNotes((prev) =>
+        prev.map((n) => (n.id === updatedNote.id ? updatedNote : n)),
+      )
+    } catch (error) {
+      console.error('Failed to update note', error)
+    } finally {
+      closeModal()
+    }
+  }
 
   const handleNoteDelete = async (note: Partial<Note>) => {
+    console.log('handleNoteDelete', note)
     if (!note.id) {
       throw new Error(`Missing required note ID for deletion.`)
     }
     try {
       await NoteService.instance.delete(note.id)
+
       setNotes((prev) => prev.filter((n) => n.id !== note.id))
     } catch (error) {
       console.error('Failed to delete note', error)
+    } finally {
+      closeModal()
     }
   }
 

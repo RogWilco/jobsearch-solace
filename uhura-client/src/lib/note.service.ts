@@ -21,6 +21,10 @@ export class NoteService {
     return this._instance
   }
 
+  private readonly _config = {
+    headers: { Accept: 'application/json' },
+  }
+
   /**
    * Initializes a new note service.
    *
@@ -34,9 +38,7 @@ export class NoteService {
    * @returns an array of notes
    */
   public async getMany(): Promise<Note[]> {
-    const res = await axios.get<Note[]>(this._baseUrl, {
-      headers: { Accept: 'application/json' },
-    })
+    const res = await axios.get<Note[]>(this._baseUrl, this._config)
 
     return res.data
   }
@@ -49,9 +51,7 @@ export class NoteService {
    * @returns the corresponding note
    */
   public async getOne(id: string): Promise<Note> {
-    const res = await axios.get<Note>(`${this._baseUrl}/${id}`, {
-      headers: { Accept: 'application/json' },
-    })
+    const res = await axios.get<Note>(`${this._baseUrl}/${id}`, this._config)
 
     return res.data
   }
@@ -65,6 +65,7 @@ export class NoteService {
    */
   public async create(note: Note): Promise<Note> {
     const res = await axios.post<Note>(this._baseUrl, note, {
+      ...this._config,
       headers: { 'Content-Type': 'application/json' },
     })
 
@@ -80,7 +81,8 @@ export class NoteService {
    * @returns the updated note
    */
   public async update(id: Note['id'], note: Partial<Note>): Promise<Note> {
-    const res = await axios.put<Note>(`${this._baseUrl}/${id}`, note, {
+    const res = await axios.patch<Note>(`${this._baseUrl}/${id}`, note, {
+      ...this._config,
       headers: { 'Content-Type': 'application/json' },
     })
 
@@ -93,6 +95,6 @@ export class NoteService {
    * @param id the id of the note to delete
    */
   public async delete(id: string): Promise<void> {
-    await axios.delete(`${this._baseUrl}/${id}`)
+    await axios.delete(`${this._baseUrl}/${id}`, this._config)
   }
 }

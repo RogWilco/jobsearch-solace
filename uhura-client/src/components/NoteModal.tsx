@@ -28,9 +28,7 @@ export const NoteModal = ({
     delete: undefined,
   }
 
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-
+  const handleFormSubmit = (data: Partial<Note>) => {
     switch (mode) {
       case 'create':
         onCreate(data as Note)
@@ -55,7 +53,12 @@ export const NoteModal = ({
       overlayProps={{ blur: 3, backgroundOpacity: 0.45 }}
     >
       {mode === 'delete' ? (
-        <form onSubmit={handleFormSubmit}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            handleFormSubmit(data)
+          }}
+        >
           <Group>
             <IconAlertTriangleFilled />
             <Text>Are you sure you want to delete this note?</Text>
