@@ -30,7 +30,7 @@ async function main() {
 
   // Setup Swagger
   SwaggerModule.setup(
-    'api',
+    'docs',
     app,
     SwaggerModule.createDocument(
       app,
