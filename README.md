@@ -192,4 +192,4 @@ Must be written with JavaScript or Typescript (preferred)
 - [x] Main page must include all the notes and a way to create a new note
 - [x] Main page must include a search bar that will find based on a notes content. (Client or Server query is fine)
 - [x] Must include README with steps on how to run the application(s) locally and any details around the implementation of the final product, struggles you ran into, and things you would change and return to if given more time.
-- [ ] Must include working web app hosted somewhere publicly accessible
+- [x] Must include working web app hosted somewhere publicly accessible

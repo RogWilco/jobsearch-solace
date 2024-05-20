@@ -8,8 +8,7 @@
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "rootDir": ".",
-    "sourceRoot": "."
+    "rootDir": "."
   },
   "include": ["package.json", "src/**/*.ts"],
   "exclude": ["out/**/*.*"]

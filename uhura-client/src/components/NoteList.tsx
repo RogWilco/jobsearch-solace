@@ -46,20 +46,21 @@ export const NoteList = ({
         </Card>
       </Timeline.Item>
       {isLoading && <NoteListLoader />}
-      {notes
-        .filter(
-          (n) =>
-            n.title.toLowerCase().includes(search.toLowerCase()) ||
-            n.content.toLowerCase().includes(search.toLowerCase()),
-        )
-        .map((note) => (
-          <NoteItem
-            key={note.id}
-            note={note}
-            onEditClick={onEditClick}
-            onDeleteClick={onDeleteClick}
-          />
-        ))}
+      {Array.isArray(notes) &&
+        notes
+          .filter(
+            (n) =>
+              n.title.toLowerCase().includes(search.toLowerCase()) ||
+              n.content.toLowerCase().includes(search.toLowerCase()),
+          )
+          .map((note) => (
+            <NoteItem
+              key={note.id}
+              note={note}
+              onEditClick={onEditClick}
+              onDeleteClick={onDeleteClick}
+            />
+          ))}
     </Timeline>
   )
 }

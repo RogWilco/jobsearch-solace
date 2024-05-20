@@ -15,7 +15,9 @@ export class NoteService {
    */
   public static get instance(): NoteService {
     if (!this._instance) {
-      this._instance = new NoteService(import.meta.env.VITE_API_URL + '/notes')
+      this._instance = new NoteService(
+        import.meta.env.UHURA_SERVICE_URL + '/notes',
+      )
     }
 
     return this._instance

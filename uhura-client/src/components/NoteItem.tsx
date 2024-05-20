@@ -31,7 +31,7 @@ export const NoteItem = ({
 
   const { id, title, content, type, direction, status } = note
 
-  let pendingClose: NodeJS.Timeout
+  let pendingClose: ReturnType<typeof setTimeout>
 
   function handleMouseEnter() {
     clearTimeout(pendingClose)
@@ -44,6 +44,7 @@ export const NoteItem = ({
 
   return (
     <Timeline.Item
+      key={id}
       bullet={
         <NoteBullet
           type={type}
