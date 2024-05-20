@@ -5,7 +5,13 @@
     "uhura-client"
   ],
   "scripts": {
-    "clean": "cat .cleanrc | sed -E '/^#.*$/ d' | sed '/^\\s*$/ d' | sed 's/^/rm -rf /' | sh"
+    "clean": "cat .cleanrc | sed -E '/^#.*$/ d' | sed '/^\\s*$/ d' | sed 's/^/rm -rf /' | sh",
+    "start": "yarn start:client & yarn start:service",
+    "start:client": "yarn workspace @rogwilco/uhura-client start",
+    "start:client:watch": "yarn workspace @rogwilco/uhura-client start:watch",
+    "start:service": "yarn workspace @rogwilco/uhura-service start",
+    "start:service:watch": "yarn workspace @rogwilco/uhura-service start:watch",
+    "start:watch": "yarn start:client:watch & yarn start:service:watch"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.8.0",

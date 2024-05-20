@@ -9,14 +9,14 @@ services:
     build:
       context: uhura-client/
       target: base
-    command: ['sh', '-c', 'npx yarn start']
+    command: ['sh', '-c', 'npx yarn install && npx yarn start']
     environment:
       NODE_ENV: ci
     volumes:
       - ./:/app
     working_dir: /app/uhura-client
     ports:
-      - '3001:3000'
+      - '3001:3001'
   service:
     depends_on:
       - database
@@ -25,9 +25,10 @@ services:
     build:
       context: uhura-service/
       target: base
-    command: ['sh', '-c', 'npx yarn start']
+    command: ['sh', '-c', 'npx yarn install && npx yarn start']
     environment:
       NODE_ENV: ci
+      DB_HOST: database
     env_file:
       - ./uhura-service/.env.ci
     volumes:
