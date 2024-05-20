@@ -1,5 +1,6 @@
 services:
   client:
+    command: ['sh', '-c', 'npx yarn start:watch']
     environment:
       CHOKIDAR_USEPOLLING: true
       NODE_ENV: development

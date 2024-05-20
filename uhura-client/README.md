@@ -26,7 +26,7 @@ The Uhura Client is a web application that provides a user interface for interac
 3. Start the development server:
 
    ```sh
-   yarn dev
+   yarn start:watch
    ```
 
 4. Open your browser and navigate to `http://localhost:3000`.

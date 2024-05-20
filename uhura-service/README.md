@@ -27,7 +27,7 @@ The Uhura Service is a RESTful API that provides a way to manage and retrieve da
 3. Start the development server:
 
    ```sh
-   yarn start:dev
+   yarn start:watch
    ```
 
 4. View the Swagger documentation at `http://localhost:3000/docs`.
