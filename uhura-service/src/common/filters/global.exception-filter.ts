@@ -19,6 +19,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         const status = exception.getStatus()
         response.status(status).json({
           statusCode: status,
+          message: exception.message,
           timestamp: new Date().toISOString(),
           path: request.url,
         })
