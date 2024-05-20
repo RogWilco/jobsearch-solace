@@ -1,4 +1,5 @@
 import {
+  Button,
   Fieldset,
   InputLabel,
   NativeSelect,
@@ -9,13 +10,15 @@ import {
 } from '@mantine/core'
 import { Note } from '../common/types'
 
+export type NoteFormMode = 'create' | 'edit'
+
 export const NoteForm = ({
   data,
   mode,
   onSubmit,
 }: {
   data: Partial<Note>
-  mode: 'create' | 'edit'
+  mode: NoteFormMode
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void
 }) => {
   return (
@@ -98,7 +101,7 @@ export const NoteForm = ({
             />
           </>
         )}
-        <button type="submit">Save</button>
+        <Button type="submit">Save</Button>
       </Stack>
     </form>
   )

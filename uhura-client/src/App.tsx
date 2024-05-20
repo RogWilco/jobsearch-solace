@@ -11,17 +11,23 @@ import {
   createTheme,
   rem,
 } from '@mantine/core'
+import { useDisclosure } from '@mantine/hooks'
 import { IconPlus, IconSearch } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 import classes from './App.module.css'
 import { Note } from './common/types'
 import { NoteList } from './components/NoteList'
 import { NoteListLoader } from './components/NoteListLoader'
+import { NoteModal, NoteModalMode } from './components/NoteModal'
 import { NoteService } from './lib/note.service'
 
 export default function App() {
   const [notes, setNotes] = useState<Note[]>([])
   const [loading, setLoading] = useState<boolean>(true)
+  const [modalOpened, { open: openModal, close: closeModal }] =
+    useDisclosure(false)
+  const [modalMode, setModalMode] = useState<NoteModalMode>()
+  const [noteData, setNoteData] = useState({})
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -42,16 +48,32 @@ export default function App() {
     primaryColor: 'blue',
   })
 
-  const handleNoteCreateClick = () => {}
+  const handleCreateClick = () => {
+    setNoteData({})
+    setModalMode('create')
+    openModal()
+  }
 
-  const handleNoteEditClick = () => {}
+  const handleEditClick = (note: Note) => {
+    setNoteData(note)
+    setModalMode('edit')
+    openModal()
+  }
 
-  const handleNoteDeleteClick = async (note: Note) => {
-    // Prompt the user to confirm the deletion
-    if (!window.confirm('Are you sure you want to delete this note?')) {
-      return
+  const handleDeleteClick = (note: Note) => {
+    setNoteData(note)
+    setModalMode('delete')
+    openModal()
+  }
+
+  const handleNoteCreate = () => {}
+
+  const handleNoteUpdate = () => {}
+
+  const handleNoteDelete = async (note: Partial<Note>) => {
+    if (!note.id) {
+      throw new Error(`Missing required note ID for deletion.`)
     }
-
     try {
       await NoteService.instance.delete(note.id)
       setNotes((prev) => prev.filter((n) => n.id !== note.id))
@@ -62,6 +84,15 @@ export default function App() {
 
   return (
     <MantineProvider theme={theme} defaultColorScheme="auto">
+      <NoteModal
+        mode={modalMode}
+        data={noteData}
+        opened={modalOpened}
+        onClose={closeModal}
+        onCreate={handleNoteCreate}
+        onUpdate={handleNoteUpdate}
+        onDelete={handleNoteDelete}
+      />
       <AppShell>
         <AppShell.Header className={classes.header}>
           <div className={classes.inner}>
@@ -81,7 +112,7 @@ export default function App() {
                     size="input-sm"
                     variant="default"
                     aria-label="Create a new note"
-                    onClick={handleNoteCreateClick}
+                    onClick={handleCreateClick}
                   >
                     <IconPlus className={classes.icon} stroke={1.5} />
                   </ActionIcon>
@@ -106,9 +137,9 @@ export default function App() {
           <Container mt="sm">
             <NoteList
               notes={notes}
-              onCreateClick={handleNoteCreateClick}
-              onEditClick={handleNoteEditClick}
-              onDeleteClick={handleNoteDeleteClick}
+              onCreateClick={handleCreateClick}
+              onEditClick={handleEditClick}
+              onDeleteClick={handleDeleteClick}
             >
               {loading && <NoteListLoader />}
             </NoteList>
