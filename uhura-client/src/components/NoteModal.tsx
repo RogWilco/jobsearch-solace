@@ -59,7 +59,7 @@ export const NoteModal = ({
             handleFormSubmit(data)
           }}
         >
-          <Group>
+          <Group m={20} mb={30}>
             <IconAlertTriangleFilled />
             <Text>Are you sure you want to delete this note?</Text>
           </Group>

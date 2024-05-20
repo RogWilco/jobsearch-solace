@@ -2,10 +2,12 @@ import { ActionIcon, Card, Timeline, Title } from '@mantine/core'
 import { IconPlus } from '@tabler/icons-react'
 import type { Note } from '../common/types'
 import { NoteItem } from './NoteItem'
+import { NoteListLoader } from './NoteListLoader'
 
 export const NoteList = ({
   notes = [],
   search = '',
+  isLoading = true,
   onCreateClick,
   onEditClick,
   onDeleteClick,
@@ -14,6 +16,7 @@ export const NoteList = ({
 }: {
   notes: Note[]
   search: string
+  isLoading: boolean
   onCreateClick: () => void
   onEditClick: (note: Note) => void
   onDeleteClick: (note: Note) => void
@@ -42,6 +45,7 @@ export const NoteList = ({
           <Title order={4}>Add a new note</Title>
         </Card>
       </Timeline.Item>
+      {isLoading && <NoteListLoader />}
       {notes
         .filter(
           (n) =>

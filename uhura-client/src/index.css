@@ -53,6 +53,10 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+.mantine-Timeline-item {
+  width: 800px;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

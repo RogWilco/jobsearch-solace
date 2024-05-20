@@ -2,18 +2,20 @@ import { Skeleton, Timeline } from '@mantine/core'
 
 export const NoteListLoader = () => {
   return (
-    <Timeline lineWidth={0}>
+    <>
       {Array.from({ length: 5 }).map((_, index) => (
         <Timeline.Item
+          style={{ background: 'none' }}
           key={index}
-          bullet={<Skeleton height={25} circle mb="xs" />}
+          lineVariant="dotted"
+          bullet={<Skeleton width={10} height={10} circle radius="xl" />}
         >
-          <Skeleton height={50} circle mb="xl" />
-          <Skeleton height={8} radius="xl" />
-          <Skeleton height={8} mt={6} radius="xl" />
-          <Skeleton height={8} mt={6} width="70%" radius="xl" />
+          <Skeleton height={24} width={'60%'} radius="xl" />
+          <Skeleton height={16} mt={6} radius="xl" />
+          <Skeleton height={16} mt={6} radius="xl" />
+          {/* </Card> */}
         </Timeline.Item>
       ))}
-    </Timeline>
+    </>
   )
 }

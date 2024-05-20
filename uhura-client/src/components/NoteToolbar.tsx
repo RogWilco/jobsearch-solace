@@ -8,8 +8,10 @@ import { IconMoon, IconPlus, IconRefresh, IconSun } from '@tabler/icons-react'
 
 export const NoteToolbar = ({
   onCreateClick,
+  onReloadClick,
 }: {
   onCreateClick: () => void
+  onReloadClick: () => void
 }) => {
   const tooltipProps: Partial<React.ComponentProps<typeof Tooltip>> = {
     position: 'bottom-start',
@@ -19,11 +21,10 @@ export const NoteToolbar = ({
   }
 
   const activeColorScheme = useComputedColorScheme('light')
+  const { setColorScheme } = useMantineColorScheme()
 
   const toggleColorScheme = () => {
-    useMantineColorScheme().setColorScheme(
-      activeColorScheme === 'dark' ? 'light' : 'dark',
-    )
+    setColorScheme(activeColorScheme === 'dark' ? 'light' : 'dark')
   }
 
   return (
@@ -43,7 +44,7 @@ export const NoteToolbar = ({
           size="input-sm"
           variant="default"
           aria-label="Reload notes"
-          onClick={() => {}}
+          onClick={onReloadClick}
         >
           <IconRefresh stroke={1.5} />
         </ActionIcon>

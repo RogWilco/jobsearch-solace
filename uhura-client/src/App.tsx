@@ -12,7 +12,6 @@ import { useEffect, useState } from 'react'
 import classes from './App.module.css'
 import { Note } from './common/types'
 import { NoteList } from './components/NoteList'
-import { NoteListLoader } from './components/NoteListLoader'
 import { NoteModal, NoteModalMode } from './components/NoteModal'
 import { NoteSearch } from './components/NoteSearch'
 import { NoteToolbar } from './components/NoteToolbar'
@@ -55,21 +54,31 @@ export default function App() {
   }
 
   const handleEditClick = (note: Note) => {
-    console.log('handleEditClick', note)
     setNoteData(note)
     setModalMode('edit')
     openModal()
   }
 
   const handleDeleteClick = (note: Note) => {
-    console.log('handleDeleteClick', note)
     setNoteData(note)
     setModalMode('delete')
     openModal()
   }
 
+  const handleReloadClick = async () => {
+    setIsLoading(true)
+    setNotes([])
+
+    try {
+      setNotes(await NoteService.instance.getMany())
+    } catch (error) {
+      console.error('Failed to fetch notes', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const handleNoteCreate = async (note: Note) => {
-    console.log('handleNoteCreate', note)
     try {
       const createdNote = await NoteService.instance.create(note)
 
@@ -82,7 +91,6 @@ export default function App() {
   }
 
   const handleNoteUpdate = async (note: Partial<Note>) => {
-    console.log('handleNoteUpdate', note)
     if (!note.id) {
       throw new Error(`Missing required note ID for update.`)
     }
@@ -100,7 +108,6 @@ export default function App() {
   }
 
   const handleNoteDelete = async (note: Partial<Note>) => {
-    console.log('handleNoteDelete', note)
     if (!note.id) {
       throw new Error(`Missing required note ID for deletion.`)
     }
@@ -132,27 +139,14 @@ export default function App() {
             <Group>
               <h1>Uhura</h1>
             </Group>
-            <Container>
+            <Container w={400}>
               <NoteSearch onChange={(e) => setSearch(e.target.value)} />
             </Container>
             <Group ml={50} gap={5} className={classes.links} visibleFrom="xs">
-              <NoteToolbar onCreateClick={handleCreateClick} />
-              {/* <Tooltip
-                label="New"
-                position="bottom-start"
-                withArrow
-                arrowPosition="center"
-                openDelay={230}
-              >
-                <ActionIcon
-                  size="input-sm"
-                  variant="default"
-                  aria-label="Create a new note"
-                  onClick={handleCreateClick}
-                >
-                  <IconPlus className={classes.icon} stroke={1.5} />
-                </ActionIcon>
-              </Tooltip> */}
+              <NoteToolbar
+                onCreateClick={handleCreateClick}
+                onReloadClick={handleReloadClick}
+              />
             </Group>
           </div>
         </AppShell.Header>
@@ -161,12 +155,11 @@ export default function App() {
             <NoteList
               notes={notes}
               search={search}
+              isLoading={isLoading}
               onCreateClick={handleCreateClick}
               onEditClick={handleEditClick}
               onDeleteClick={handleDeleteClick}
-            >
-              {isLoading && <NoteListLoader />}
-            </NoteList>
+            ></NoteList>
           </Container>
         </AppShell.Main>
       </AppShell>
