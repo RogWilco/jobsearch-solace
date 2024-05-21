@@ -5,6 +5,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd())
 
   return {
+    envPrefix: 'UHURA_',
     plugins: [react()],
     build: {
       outDir: 'out/build',

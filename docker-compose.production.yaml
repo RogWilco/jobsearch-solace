@@ -13,8 +13,10 @@ services:
       target: client
       args:
         PACKAGE: uhura-client
+        UHURA_SERVICE_URL: 'http://api.uhura.nickawilliams.com'
     environment:
       NODE_ENV: production
+      UHURA_SERVICE_URL: 'http://api.uhura.nickawilliams.com'
     env_file:
       - ./uhura-client/.env.production
     healthcheck:
