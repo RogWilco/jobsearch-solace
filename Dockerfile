@@ -5,12 +5,12 @@ FROM node:20 AS base
 FROM base AS builder
 ARG PACKAGE
 ARG UHURA_SERVICE_URL
-ENV UHURA_SERVICE_URL=UHURA_SERVICE_URL
+ENV UHURA_SERVICE_URL=${UHURA_SERVICE_URL}
 WORKDIR /app
 COPY package*.json yarn.lock tsconfig*.json ./
 WORKDIR /app/${PACKAGE}
 COPY ${PACKAGE}/src ./src
-COPY ${PACKAGE}/package*.json ${PACKAGE}/tsconfig*.json ${PACKAGE}/vite.config.dist.ts ${PACKAGE}/index.html ./
+COPY ${PACKAGE}/package*.json ${PACKAGE}/tsconfig*.json ${PACKAGE}/*.config.dist.ts ${PACKAGE}/index.htm* ./
 WORKDIR /app
 RUN yarn install --frozen-lockfile
 WORKDIR /app/${PACKAGE}
@@ -31,7 +31,8 @@ EXPOSE 3000
 # Production Stage: Lean for Deployments (Client)
 FROM nginx:alpine AS client
 ARG PACKAGE
-ENV VITE_API_URL=http://localhost:3000
+ARG UHURA_SERVICE_URL
+ENV UHURA_SERVICE_URL=${UHURA_SERVICE_URL}
 RUN rm -rf /usr/share/nginx/html/*
 COPY ${PACKAGE}/nginx.conf /etc/nginx/nginx.conf
 COPY --from=builder /app/${PACKAGE}/out/dist /usr/share/nginx/html

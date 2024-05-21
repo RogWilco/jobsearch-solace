@@ -169,6 +169,8 @@ resource "aws_instance" "uhura_service_ec2" {
   subnet_id                   = aws_subnet.uhura_subnet_public.id
   associate_public_ip_address = true
 
+
+
   vpc_security_group_ids = [aws_security_group.uhura_sg_default.id]
 
   root_block_device {
@@ -181,9 +183,18 @@ resource "aws_instance" "uhura_service_ec2" {
 
   user_data = <<-EOF
               #!/bin/bash
+              # Install Docker
               sudo apt-get update
               sudo apt-get install -y docker.io
+
+              # Install AWS CLI
               sudo docker run -d -p 3000:3000 525999333867.dkr.ecr.us-west-1.amazonaws.com/uhura-service:latest
+              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+              unzip awscliv2.zip
+              sudo ./aws/install
+
+              # Authenticate Docker with ECR
+              aws ecr get-login-password --region="${var.aws_region}" | docker login --username AWS --password-stdin "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com"
               EOF
 
   tags = {

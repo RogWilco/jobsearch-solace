@@ -10,9 +10,6 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: 'out/dist',
     },
-    // esbuild: {
-    //   target: 'es2020',
-    // },
     server: {
       port: Number(env.UHURA_CLIENT_PORT ?? 3001),
     },

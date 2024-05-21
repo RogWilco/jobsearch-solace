@@ -2,38 +2,37 @@ name: uhura
 
 services:
   client:
+    image: 525999333867.dkr.ecr.us-west-1.amazonaws.com/uhura-client:latest
     depends_on:
       - service
     links:
       - service
     build:
       context: .
-      target: base
-    command: ['sh', '-c', 'npx yarn install && npx yarn start']
+      target: client
+      args:
+        PACKAGE: uhura-client
     environment:
-      NODE_ENV: ci
-    volumes:
-      - ./:/app
-    working_dir: /app/uhura-client
-    ports:
-      - '3001:3001'
-  service:
-    depends_on:
-      - database
-    links:
-      - database
-    build:
-      context: .
-      target: base
-    command: ['sh', '-c', 'npx yarn install && npx yarn start']
-    environment:
-      NODE_ENV: ci
-      DB_HOST: database
+      NODE_ENV: production
     env_file:
-      - ./uhura-service/.env.ci
-    volumes:
-      - ./:/app
-    working_dir: /app/uhura-service
+      - ./uhura-client/.env.production
+    ports:
+      - '80:80'
+  service:
+    image: 525999333867.dkr.ecr.us-west-1.amazonaws.com/uhura-service:latest
+    depends_on:
+      - database
+    links:
+      - database
+    build:
+      context: .
+      target: service
+      args:
+        PACKAGE: uhura-service
+    environment:
+      NODE_ENV: production
+    env_file:
+      - ./uhura-service/.env.production
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
       interval: 5s
@@ -46,7 +45,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: uhura
-      POSTGRES_PASSWORD: uhura
+      POSTGRES_PASSWORD: ${UHURA_DATABASE_PASSWORD}
       POSTGRES_DB: uhura
     healthcheck:
       test: ['CMD', 'pg_isready', '-U', 'uhura']
