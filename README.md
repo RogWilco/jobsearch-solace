@@ -1,4 +1,6 @@
-# Uhura
+# [Uhura](http://uhura.nickawilliams.com)
+
+[![View API Documentation][swagger-image]][swagger-url]
 
 Experience the power of Uhura, your ultimate healthcare companion. Effortlessly
 track and manage communications and document submissions with healthcare
@@ -193,3 +195,6 @@ Must be written with JavaScript or Typescript (preferred)
 - [x] Main page must include a search bar that will find based on a notes content. (Client or Server query is fine)
 - [x] Must include README with steps on how to run the application(s) locally and any details around the implementation of the final product, struggles you ran into, and things you would change and return to if given more time.
 - [x] Must include working web app hosted somewhere publicly accessible
+
+[swagger-image]: https://img.shields.io/badge/Swagger%20-%20API%20Documentation%20-%20ltgreen?logo=swagger&logoColor=white
+[swagger-url]: http://api.uhura.nickawilliams.com/docs
