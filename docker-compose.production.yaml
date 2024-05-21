@@ -3,6 +3,7 @@ name: uhura
 services:
   client:
     image: 525999333867.dkr.ecr.us-west-1.amazonaws.com/uhura-client:latest
+    platform: linux/amd64
     depends_on:
       - service
     links:
@@ -16,10 +17,16 @@ services:
       NODE_ENV: production
     env_file:
       - ./uhura-client/.env.production
+    healthcheck:
+      test: ['CMD', 'curl', '-f', '${TF_VAR_client_url}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
     ports:
-      - '80:80'
+      - '${TF_VAR_client_port}:${TF_VAR_client_port}'
   service:
     image: 525999333867.dkr.ecr.us-west-1.amazonaws.com/uhura-service:latest
+    platform: linux/amd64
     depends_on:
       - database
     links:
@@ -34,19 +41,19 @@ services:
     env_file:
       - ./uhura-service/.env.production
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      test: ['CMD', 'curl', '-f', '${TF_VAR_service_url}/health']
       interval: 5s
       timeout: 5s
       retries: 5
     ports:
-      - '3000:3000'
+      - '${TF_VAR_service_port}:${TF_VAR_service_port}'
   database:
     image: postgres:16
     restart: always
     environment:
-      POSTGRES_USER: uhura
-      POSTGRES_PASSWORD: ${UHURA_DATABASE_PASSWORD}
-      POSTGRES_DB: uhura
+      POSTGRES_USER: ${TF_VAR_db_username}
+      POSTGRES_PASSWORD: ${TF_VAR_db_password}
+      POSTGRES_DB: ${TF_VAR_db_name}
     healthcheck:
       test: ['CMD', 'pg_isready', '-U', 'uhura']
       interval: 5s

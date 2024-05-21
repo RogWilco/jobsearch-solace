@@ -1,5 +1,8 @@
 provider "aws" {
-  region = var.aws_region
+  region     = var.aws_region
+  access_key = var.aws_access_key
+  secret_key = var.aws_secret_key
+
 
   default_tags {
     tags = {
@@ -10,6 +13,57 @@ provider "aws" {
 
 locals {
   aws_ec2_instance_connect_cidr = "13.52.6.112/29"
+}
+
+# Logging
+# ============================================================================
+
+resource "aws_cloudwatch_log_group" "uhura_logGroup" {
+  name              = "uhura"
+  retention_in_days = 5
+}
+
+# Networking
+# ============================================================================
+
+resource "aws_default_vpc" "default_vpc" {}
+
+resource "aws_default_subnet" "default_subnet" {
+  availability_zone = var.aws_default_availability_zone
+}
+
+# RDS
+# ============================================================================
+
+resource "aws_db_instance" "uhura_db" {
+  identifier                 = "uhura-db"
+  instance_class             = "db.t3.micro"
+  engine                     = "postgres"
+  engine_version             = "16.2"
+  auto_minor_version_upgrade = true
+  storage_type               = "gp2"
+  allocated_storage          = 20
+  port                       = var.db_port
+  db_name                    = var.db_name
+  username                   = var.db_username
+  password                   = var.db_password
+  parameter_group_name       = aws_db_parameter_group.uhura_db_pg.name
+  publicly_accessible        = true
+  skip_final_snapshot        = true
+}
+
+resource "aws_db_parameter_group" "uhura_db_pg" {
+  family = "postgres16"
+  name   = "uhura-db-pg"
+
+  # parameter {
+  #   name  = "rds.force_ssl"
+  #   value = "0"
+  # }
+
+  tags = {
+    Name = "default.postgres16"
+  }
 }
 
 # ECR Repositories
@@ -33,248 +87,198 @@ resource "aws_ecr_repository" "uhura_service_ecr" {
   }
 }
 
-# Networking
+# ECS
 # ============================================================================
 
-resource "aws_vpc" "uhura_vpc" {
-  cidr_block       = "10.0.0.0/16"
-  instance_tenancy = "default"
+resource "aws_ecs_cluster" "uhura_cluster" {
+  name = "uhura-cluster"
 
   tags = {
-    Name = "uhura:vpc"
+    Name = "uhura:cluster"
   }
 }
 
-resource "aws_internet_gateway" "uhura_gateway" {
-  vpc_id = aws_vpc.uhura_vpc.id
+resource "aws_ecs_task_definition" "uhura_client_task" {
+  family                   = "uhura-client"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = "256"
+  memory                   = "512"
 
-  tags = {
-    Name = "uhura:gateway"
-  }
-}
+  execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
 
-resource "aws_subnet" "uhura_subnet_private" {
-  vpc_id                  = aws_vpc.uhura_vpc.id
-  cidr_block              = "10.0.1.0/24"
-  map_public_ip_on_launch = false
-  availability_zone       = "us-west-1b"
-
-  tags = {
-    Name = "uhura:subnet:private"
-  }
-}
-
-resource "aws_route_table" "uhura_route_table_private" {
-  vpc_id = aws_vpc.uhura_vpc.id
-
-  tags = {
-    Name = "uhura:route_table:private"
-  }
-}
-
-resource "aws_route_table_association" "uhura_route_table_association_private" {
-  subnet_id      = aws_subnet.uhura_subnet_private.id
-  route_table_id = aws_route_table.uhura_route_table_private.id
-}
-
-resource "aws_subnet" "uhura_subnet_public" {
-  vpc_id                  = aws_vpc.uhura_vpc.id
-  cidr_block              = "10.0.0.0/24"
-  map_public_ip_on_launch = true
-  availability_zone       = "us-west-1b"
-
-  tags = {
-    Name = "uhura:subnet:public"
-  }
-}
-
-resource "aws_route_table" "uhura_route_table_public" {
-  vpc_id = aws_vpc.uhura_vpc.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.uhura_gateway.id
-  }
-
-  tags = {
-    Name = "uhura:route_table:public"
-  }
-}
-
-resource "aws_route_table_association" "uhura_route_table_association_public" {
-  subnet_id      = aws_subnet.uhura_subnet_public.id
-  route_table_id = aws_route_table.uhura_route_table_public.id
-}
-
-resource "aws_security_group" "uhura_sg_default" {
-  name        = "uhura-sg-default"
-  description = "Allows inbound and outbound traffic from the VPC"
-  vpc_id      = aws_vpc.uhura_vpc.id
-  depends_on  = [aws_vpc.uhura_vpc]
-
-  tags = {
-    Name = "uhura:sg-default"
-  }
-}
-
-resource "aws_security_group_rule" "uhura_sgrule_inbound_allowSsh" {
-  description = "Allow SSH"
-  type        = "ingress"
-  from_port   = 22
-  to_port     = 22
-  protocol    = "tcp"
-  cidr_blocks = [
-    "${var.authorized_ip}/32",
-    "${local.aws_ec2_instance_connect_cidr}"
-  ]
-  security_group_id = aws_security_group.uhura_sg_default.id
-}
-
-resource "aws_security_group_rule" "uhura_sgrule_inbound_allowHttp" {
-  description       = "Allow HTTP"
-  type              = "ingress"
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = aws_security_group.uhura_sg_default.id
-}
-
-resource "aws_security_group_rule" "uhura_sgrule_inbound_allowHttps" {
-  description       = "Allow HTTPS"
-  type              = "ingress"
-  from_port         = 443
-  to_port           = 443
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = aws_security_group.uhura_sg_default.id
-}
-
-resource "aws_security_group_rule" "uhura_sgrule_outbound_allowAll" {
-  description       = "Allow all outbound traffic"
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = aws_security_group.uhura_sg_default.id
-}
-
-# EC2 Instances
-# ============================================================================
-
-resource "aws_instance" "uhura_service_ec2" {
-  ami                         = var.ami
-  instance_type               = "t2.micro"
-  subnet_id                   = aws_subnet.uhura_subnet_public.id
-  associate_public_ip_address = true
-
-
-
-  vpc_security_group_ids = [aws_security_group.uhura_sg_default.id]
-
-  root_block_device {
-    delete_on_termination = true
-    volume_size           = 50
-    volume_type           = "gp2"
-  }
-
-  depends_on = [aws_security_group.uhura_sg_default]
-
-  user_data = <<-EOF
-              #!/bin/bash
-              # Install Docker
-              sudo apt-get update
-              sudo apt-get install -y docker.io
-
-              # Install AWS CLI
-              sudo docker run -d -p 3000:3000 525999333867.dkr.ecr.us-west-1.amazonaws.com/uhura-service:latest
-              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-              unzip awscliv2.zip
-              sudo ./aws/install
-
-              # Authenticate Docker with ECR
-              aws ecr get-login-password --region="${var.aws_region}" | docker login --username AWS --password-stdin "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com"
-              EOF
-
-  tags = {
-    Name = "uhura-service:ec2"
-  }
-}
-
-resource "aws_instance" "uhura_client_ec2" {
-  ami                         = var.ami
-  instance_type               = "t2.micro"
-  subnet_id                   = aws_subnet.uhura_subnet_public.id
-  associate_public_ip_address = true
-
-  vpc_security_group_ids = [aws_security_group.uhura_sg_default.id]
-
-  root_block_device {
-    delete_on_termination = true
-    volume_size           = 50
-    volume_type           = "gp2"
-  }
-
-  depends_on = [aws_security_group.uhura_sg_default]
-
-  user_data = <<-EOF
-              #!/bin/bash
-              sudo apt-get update
-              sudo apt-get install -y docker.io
-              sudo docker run -d -p 3000:3000 525999333867.dkr.ecr.us-west-1.amazonaws.com/uhura-client:latest
-              EOF
-
-  tags = {
-    Name = "uhura-client:ec2"
-  }
-
-}
-
-# IAM
-# ============================================================================
-
-resource "aws_iam_instance_profile" "uhura_iam_profile_ec2" {
-  name = "uhura-instance-profile-ec2"
-  role = aws_iam_role.uhura_iam_role_ec2.name
-}
-
-resource "aws_iam_role" "uhura_iam_role_ec2" {
-  name               = "uhura-role-ec2"
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
+  container_definitions = <<DEFINITION
+  [
+  {
+    "name": "uhura-client",
+    "image": "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/uhura-client:latest",
+    "essential": true,
+    "environment": [
+      {
+        "name": "UHURA_SERVICE_URL",
+        "value": "${var.service_url}"
       },
-      "Action": "sts:AssumeRole"
-    }
+      {
+        "name": "UHURA_CLIENT_PORT",
+        "value": "${var.client_port}"
+      }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${aws_cloudwatch_log_group.uhura_logGroup.name}",
+        "awslogs-stream-prefix": "ecs",
+        "awslogs-region": "${var.aws_region}"
+      }
+    },
+    "portMappings": [
+      {
+        "containerPort": ${var.client_port},
+        "hostPort": ${var.client_port}
+      }
+    ],
+    "memory": 512,
+    "cpu": 256
+  }
   ]
-}
-EOF
-}
+DEFINITION
 
-resource "aws_iam_role_policy_attachment" "uhura_iam_role_policy_attachment_ec2" {
-  role       = aws_iam_role.uhura_iam_role_ec2.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  tags = {
+    Name = "uhura-client:task"
+  }
 }
 
-# resource "aws_instance" "uhura_client" {
-#   ami           = var.ami
-#   instance_type = "t2.micro"
-#   # key_name      = var.key_name
-#   # subnet_id     = var.subnet_id
+resource "aws_ecs_service" "uhura_client" {
+  name            = "uhura-client"
+  cluster         = aws_ecs_cluster.uhura_cluster.id
+  task_definition = aws_ecs_task_definition.uhura_client_task.arn
+  desired_count   = 1
+  launch_type     = "FARGATE"
 
-#   vpc_security_group_ids = [aws_security_group.allow_http.id]
+  network_configuration {
+    subnets          = [aws_default_subnet.default_subnet.id]
+    assign_public_ip = true
+  }
 
-#   tags = {
-#     Name = "uhura-client"
-#   }
+  tags = {
+    Name = "uhura-client:service"
+  }
+}
 
-#   provisioner "local-exec" {
-#     command = "echo ${aws_instance.uhura_client.public_ip} > client_ip.txt"
-#   }
-# }
+resource "aws_ecs_task_definition" "uhura_service_task" {
+  family                   = "uhura-service"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = "256"
+  memory                   = "512"
+
+  execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
+
+  container_definitions = <<DEFINITION
+  [
+  {
+    "name": "uhura-service",
+    "image": "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/uhura-service:latest",
+    "essential": true,
+    "environment": [
+
+      {
+        "name": "DB_TYPE",
+        "value": "${aws_db_instance.uhura_db.engine}"
+      },
+      {
+        "name": "DB_HOST",
+        "value": "${aws_db_instance.uhura_db.address}"
+      },
+      {
+        "name": "DB_PORT",
+        "value": "${aws_db_instance.uhura_db.port}"
+      },
+      {
+        "name": "DB_NAME",
+        "value": "${aws_db_instance.uhura_db.db_name}"
+      },
+      {
+        "name": "DB_USERNAME",
+        "value": "${aws_db_instance.uhura_db.username}"
+      },
+      {
+        "name": "DB_PASSWORD",
+        "value": "${var.db_password}"
+      },
+      {
+        "name": "DB_SYNC",
+        "value": "true"
+      },
+      {
+        "name": "SERVICE_PORT",
+        "value": "${var.service_port}"
+      }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${aws_cloudwatch_log_group.uhura_logGroup.name}",
+        "awslogs-stream-prefix": "ecs",
+        "awslogs-region": "${var.aws_region}"
+      }
+    },
+    "portMappings": [
+      {
+        "containerPort": ${var.service_port},
+        "hostPort": ${var.service_port}
+      }
+    ],
+    "memory": 512,
+    "cpu": 256
+  }
+]
+DEFINITION
+
+  tags = {
+    Name = "uhura-service:task"
+  }
+}
+
+resource "aws_ecs_service" "uhura_service" {
+  name            = "uhura-service"
+  cluster         = aws_ecs_cluster.uhura_cluster.id
+  task_definition = aws_ecs_task_definition.uhura_service_task.arn
+  desired_count   = 1
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets          = [aws_default_subnet.default_subnet.id]
+    assign_public_ip = true
+  }
+
+  tags = {
+    Name = "uhura-service:service"
+  }
+}
+
+resource "aws_iam_role" "ecs_task_execution_role" {
+  name = "uhjson-ecs-task-execution-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      },
+    ]
+  })
+
+  tags = {
+    Name = "uhjson-ecs-task-execution-role"
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
